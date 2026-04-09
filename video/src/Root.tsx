@@ -5,7 +5,7 @@ import './index.css';
 import lyricsDataJson from '../public/lyrics.json';
 
 // Safe cast or check
-const durationInSeconds = (lyricsDataJson as any).duration || 10;
+const durationInSeconds = (lyricsDataJson as { duration?: number }).duration || 10;
 const CREDITS_DURATION = 15; // Extra seconds for credits
 const fps = 60;
 

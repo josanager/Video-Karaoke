@@ -6,7 +6,7 @@ import { Credits } from './Credits';
 import lyricsDataJson from '../public/lyrics.json';
 
 const lyricsData = lyricsDataJson as unknown as LyricsData | LyricWord[];
-const songDuration = (lyricsDataJson as any).duration || 10;
+const songDuration = (lyricsDataJson as { duration?: number }).duration || 10;
 
 export const MyComposition = () => {
   const { fps } = useVideoConfig();
