@@ -1,0 +1,21 @@
+{
+  "name": "videokaraoke",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Control panel and karaoke video compositions with Remotion Studio",
+  "scripts": {
+    "studio": "remotion studio",
+    "render": "remotion render",
+    "start:web": "python3 web.py"
+  },
+  "dependencies": {
+    "@remotion/cli": "4.0.481",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "remotion": "4.0.481"
+  },
+  "devDependencies": {
+    "@types/react": "18.3.23",
+    "typescript": "5.9.3"
+  }
+}

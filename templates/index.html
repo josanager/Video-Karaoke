@@ -1,0 +1,682 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Audio Tools</title>
+    <style>
+      :root {
+        --bg: #faf8f5;
+        --panel: #ffffff;
+        --line: #ddd1c3;
+        --text: #271d16;
+        --muted: #70655d;
+        --accent: #b45309;
+        --accent-strong: #9a4208;
+        --ok: #2f7d32;
+        --bad: #b3261e;
+        --track: #efe7de;
+      }
+
+      * { box-sizing: border-box; }
+
+      body {
+        margin: 0;
+        font-family: "SF Pro Text", "Helvetica Neue", sans-serif;
+        background: var(--bg);
+        color: var(--text);
+      }
+
+      .shell {
+        max-width: 1320px;
+        margin: 0 auto;
+        padding: 24px;
+      }
+
+      .topbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 16px;
+        margin-bottom: 24px;
+        padding-bottom: 16px;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .brand-mark {
+        width: 40px;
+        height: 40px;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        display: grid;
+        place-items: center;
+        background: var(--panel);
+      }
+
+      .brand-mark svg,
+      .panel-title svg,
+      .field-icon svg,
+      .button-icon svg,
+      .meta-chip svg {
+        width: 18px;
+        height: 18px;
+        stroke: currentColor;
+        fill: none;
+        stroke-width: 1.8;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+
+      .title {
+        margin: 0;
+        font-size: 28px;
+        font-weight: 650;
+        letter-spacing: -0.02em;
+      }
+
+      .subtle {
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .meta {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+
+      .meta-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 10px;
+        border: 1px solid var(--line);
+        border-radius: 9px;
+        background: var(--panel);
+        color: var(--muted);
+        font-size: 12px;
+      }
+
+      .layout {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 18px;
+      }
+
+      .panel {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        padding: 18px;
+      }
+
+      .panel-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 18px;
+      }
+
+      .panel-title {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        margin: 0;
+        font-size: 17px;
+        font-weight: 650;
+      }
+
+      .stack { display: grid; gap: 12px; }
+
+      .field {
+        display: grid;
+        gap: 8px;
+      }
+
+      .field-shell {
+        display: grid;
+        grid-template-columns: 40px 1fr;
+        align-items: center;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        background: #fff;
+        overflow: hidden;
+      }
+
+      .field-icon {
+        display: grid;
+        place-items: center;
+        color: var(--muted);
+        border-right: 1px solid var(--line);
+        height: 100%;
+        background: #fcfaf7;
+      }
+
+      input,
+      select,
+      button,
+      textarea {
+        font: inherit;
+      }
+
+      input,
+      select {
+        width: 100%;
+        border: 0;
+        outline: 0;
+        background: transparent;
+        padding: 13px 14px;
+        color: var(--text);
+      }
+
+      button {
+        border: 1px solid var(--accent);
+        background: var(--accent);
+        color: #fff;
+        border-radius: 10px;
+        padding: 12px 14px;
+        font-weight: 650;
+        cursor: pointer;
+        transition: background 140ms ease, border-color 140ms ease, transform 120ms ease, opacity 140ms ease;
+      }
+
+      button:hover {
+        background: var(--accent-strong);
+        border-color: var(--accent-strong);
+      }
+
+      button:active {
+        transform: translateY(1px);
+      }
+
+      button[disabled] {
+        opacity: 0.55;
+        cursor: not-allowed;
+      }
+
+      .action-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .button-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+      }
+
+      .progress {
+        display: grid;
+        gap: 8px;
+      }
+
+      .progress-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+        min-height: 18px;
+      }
+
+      .progress-bar {
+        height: 10px;
+        border-radius: 999px;
+        background: var(--track);
+        overflow: hidden;
+      }
+
+      .progress-fill {
+        height: 100%;
+        width: 0%;
+        background: var(--accent);
+        transition: width 180ms ease;
+      }
+
+      .status {
+        min-height: 18px;
+        font-size: 13px;
+      }
+
+      .status.ok { color: var(--ok); }
+      .status.bad { color: var(--bad); }
+      .status.muted { color: var(--muted); }
+
+      .files {
+        display: grid;
+        gap: 8px;
+      }
+
+      .mini-actions {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+
+      .ghost-button {
+        border: 1px solid var(--line);
+        background: #fff;
+        color: var(--text);
+      }
+
+      .ghost-button:hover {
+        background: #f7f2eb;
+        border-color: #ccbba8;
+      }
+
+      .lyrics-card {
+        display: none;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        background: #fcfaf7;
+        padding: 12px;
+        gap: 8px;
+      }
+
+      .lyrics-card.open {
+        display: grid;
+      }
+
+      .lyrics-head {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        align-items: baseline;
+      }
+
+      .lyrics-title {
+        font-size: 14px;
+        font-weight: 650;
+      }
+
+      .lyrics-text {
+        white-space: pre-wrap;
+        font-size: 13px;
+        line-height: 1.45;
+        color: var(--text);
+        max-height: 240px;
+        overflow: auto;
+      }
+
+      .file {
+        padding: 10px 12px;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        background: #fcfaf7;
+        font-size: 13px;
+        word-break: break-word;
+      }
+
+      details {
+        border-top: 1px solid var(--line);
+        padding-top: 10px;
+      }
+
+      summary {
+        cursor: pointer;
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      textarea {
+        margin-top: 10px;
+        width: 100%;
+        min-height: 170px;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        background: #fcfaf7;
+        padding: 12px;
+        resize: vertical;
+        color: var(--text);
+      }
+
+      @media (max-width: 880px) {
+        .layout { grid-template-columns: 1fr; }
+        .shell { padding: 16px; }
+        .topbar { align-items: flex-start; flex-direction: column; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="shell">
+      <div class="topbar">
+        <div class="brand">
+          <div class="brand-mark" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M5 8v8"/><path d="M10 5v14"/><path d="M15 9v6"/><path d="M20 7v10"/></svg>
+          </div>
+          <div>
+            <h1 class="title">Audio Tools</h1>
+            <div class="subtle">{{ default_folder }} · yt-dlp {{ yt_dlp_version }}</div>
+          </div>
+        </div>
+        <div class="meta">
+          <div class="meta-chip">
+            <svg viewBox="0 0 24 24"><path d="M3 12h18"/><path d="M12 3v18"/></svg>
+            <span>m4a auto</span>
+          </div>
+          <div class="meta-chip">
+            <svg viewBox="0 0 24 24"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>
+            <span>local</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="layout">
+        <section class="panel">
+          <div class="panel-head">
+            <h2 class="panel-title">
+              <svg viewBox="0 0 24 24"><path d="M4 12h3"/><path d="M10 8v8"/><path d="M15 6v12"/><path d="M20 10v4"/></svg>
+              <span>Karaoke</span>
+            </h2>
+          </div>
+
+          <div class="stack">
+            <div class="field">
+              <div class="field-shell">
+                <div class="field-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24"><path d="M4 7h16"/><path d="M7 4v16"/><path d="M17 4v16"/></svg>
+                </div>
+                <select id="audio-file" {% if not stem_choices %}disabled{% endif %}>
+                  {% for value, label in stem_choices %}
+                    <option value="{{ value }}">{{ label }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+            </div>
+
+            <div class="field">
+              <div class="field-shell">
+                <div class="field-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24"><path d="M4 12h4"/><path d="M10 8h10"/><path d="M10 16h10"/></svg>
+                </div>
+                <select id="karaoke-preset">
+                  {% for preset in stem_presets.values() %}
+                    <option value="{{ preset.key }}" {% if preset.key == default_preset %}selected{% endif %}>{{ preset.label }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+              <div class="subtle" id="preset-description"></div>
+            </div>
+
+            <div class="action-row">
+              <button id="separate-button" {% if not stem_choices %}disabled{% endif %}>
+                <span class="button-icon">
+                  <svg viewBox="0 0 24 24"><path d="M6 4v16"/><path d="M10 8v8"/><path d="M14 6v12"/><path d="M18 10v4"/></svg>
+                  <span>Procesar</span>
+                </span>
+              </button>
+            </div>
+
+            <div class="progress">
+              <div class="progress-top">
+                <div class="status muted" id="separate-status">Listo</div>
+                <div class="subtle" id="separate-percent">0%</div>
+              </div>
+              <div class="progress-bar"><div class="progress-fill" id="separate-progress"></div></div>
+            </div>
+
+            <div class="files" id="separate-files"></div>
+
+            <details>
+              <summary>Registro</summary>
+              <textarea id="separate-logs" readonly></textarea>
+            </details>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-head">
+            <h2 class="panel-title">
+              <svg viewBox="0 0 24 24"><path d="M10 14 21 3"/><path d="M21 3h-7"/><path d="M21 3v7"/><path d="M3 7v14h14"/></svg>
+              <span>Descarga</span>
+            </h2>
+          </div>
+
+          <div class="stack">
+            <div class="field">
+              <div class="field-shell">
+                <div class="field-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24"><path d="M10 14 21 3"/><path d="M21 3h-7"/><path d="M21 3v7"/><path d="M3 7v14h14"/></svg>
+                </div>
+                <input id="download-url" placeholder="https://..." autocomplete="off">
+              </div>
+            </div>
+
+            <div class="action-row">
+              <button id="download-button">
+                <span class="button-icon">
+                  <svg viewBox="0 0 24 24"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M4 21h16"/></svg>
+                  <span>Descargar</span>
+                </span>
+              </button>
+            </div>
+
+            <div class="progress">
+              <div class="progress-top">
+                <div class="status muted" id="download-status">Listo</div>
+                <div class="subtle" id="download-percent">0%</div>
+              </div>
+              <div class="progress-bar"><div class="progress-fill" id="download-progress"></div></div>
+            </div>
+
+            <div class="mini-actions">
+              <button class="ghost-button" id="open-lyrics-button" type="button" disabled>
+                <span class="button-icon">
+                  <svg viewBox="0 0 24 24"><path d="M4 5h16"/><path d="M4 12h10"/><path d="M4 19h16"/></svg>
+                  <span>Letra</span>
+                </span>
+              </button>
+              <button class="ghost-button" id="copy-lyrics-search-button" type="button" disabled>
+                <span class="button-icon">
+                  <svg viewBox="0 0 24 24"><path d="M9 9h10v10H9z"/><path d="M5 15H4V5h10v1"/></svg>
+                  <span>Copiar letra</span>
+                </span>
+              </button>
+            </div>
+
+            <div class="lyrics-card" id="lyrics-card">
+              <div class="lyrics-head">
+                <div class="lyrics-title" id="lyrics-title">Letra</div>
+                <div class="subtle" id="lyrics-meta"></div>
+              </div>
+              <div class="lyrics-text" id="lyrics-text"></div>
+            </div>
+
+            <details>
+              <summary>Registro</summary>
+              <textarea id="download-logs" readonly></textarea>
+            </details>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <script>
+      const presetDescriptions = {{ preset_meta | tojson }};
+
+      let latestLyricsQuery = "";
+      let latestLyricsUrl = "";
+      let latestLyricsText = "";
+      let latestLyricsTitle = "";
+      let latestLyricsArtist = "";
+
+      function setStatus(prefix, state, progress, message, logs, files, extra = {}) {
+        const statusEl = document.getElementById(`${prefix}-status`);
+        const percentEl = document.getElementById(`${prefix}-percent`);
+        const progressEl = document.getElementById(`${prefix}-progress`);
+        const logsEl = document.getElementById(`${prefix}-logs`);
+        const filesEl = document.getElementById(`${prefix}-files`);
+
+        statusEl.textContent = message || "Listo";
+        statusEl.className = `status ${state === "success" ? "ok" : state === "error" ? "bad" : "muted"}`;
+        percentEl.textContent = `${progress}%`;
+        progressEl.style.width = `${progress}%`;
+        logsEl.value = (logs || []).join("\n");
+
+        if (filesEl) {
+          filesEl.innerHTML = "";
+          (files || []).forEach((file) => {
+            const item = document.createElement("div");
+            item.className = "file";
+            item.textContent = file;
+            filesEl.appendChild(item);
+          });
+        }
+
+        if (prefix === "download") {
+          latestLyricsQuery = extra.lyrics_query || "";
+          latestLyricsUrl = extra.lyrics_url || "";
+          document.getElementById("open-lyrics-button").disabled = false;
+          document.getElementById("copy-lyrics-search-button").disabled = true;
+        }
+      }
+
+      function renderLyricsCard() {
+        const card = document.getElementById("lyrics-card");
+        const title = document.getElementById("lyrics-title");
+        const meta = document.getElementById("lyrics-meta");
+        const text = document.getElementById("lyrics-text");
+
+        if (!latestLyricsText) {
+          card.classList.remove("open");
+          title.textContent = "Letra";
+          meta.textContent = "";
+          text.textContent = "";
+          return;
+        }
+
+        card.classList.add("open");
+        title.textContent = latestLyricsTitle || "Letra";
+        meta.textContent = latestLyricsArtist || "";
+        text.textContent = latestLyricsText;
+      }
+
+      function toggleButton(button, running) {
+        button.disabled = running;
+        button.style.opacity = running ? "0.8" : "1";
+      }
+
+      async function pollTask(taskId, prefix, button) {
+        let finished = false;
+        while (!finished) {
+          const response = await fetch(`/api/task/${taskId}`);
+          const data = await response.json();
+          setStatus(prefix, data.state, data.progress, data.message, data.logs, data.files, data);
+          finished = data.state === "success" || data.state === "error";
+          if (!finished) {
+            await new Promise((resolve) => setTimeout(resolve, 800));
+          }
+        }
+        toggleButton(button, false);
+        if (prefix === "download" && document.getElementById("download-status").classList.contains("ok")) {
+          setTimeout(() => window.location.reload(), 900);
+        }
+      }
+
+      function updatePresetDescription() {
+        const preset = document.getElementById("karaoke-preset").value;
+        document.getElementById("preset-description").textContent = presetDescriptions[preset]?.description || "";
+      }
+
+      document.getElementById("karaoke-preset").addEventListener("change", updatePresetDescription);
+      updatePresetDescription();
+
+      document.getElementById("download-button").addEventListener("click", async () => {
+        const button = document.getElementById("download-button");
+        const url = document.getElementById("download-url").value.trim();
+        if (!url) {
+          setStatus("download", "error", 0, "Pega un link", [], []);
+          return;
+        }
+
+        toggleButton(button, true);
+        setStatus("download", "running", 0, "Preparando...", [], []);
+        const response = await fetch("/api/download", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ url }),
+        });
+        const data = await response.json();
+        pollTask(data.task_id, "download", button);
+      });
+
+      document.getElementById("open-lyrics-button").addEventListener("click", async () => {
+        const url = document.getElementById("download-url").value.trim();
+        if (!url) {
+          setStatus("download", "error", 0, "Pega un link", document.getElementById("download-logs").value.split("\n").filter(Boolean), []);
+          return;
+        }
+
+        const response = await fetch("/api/lyrics", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ url }),
+        });
+        const data = await response.json();
+        latestLyricsQuery = data.lyrics_query || latestLyricsQuery;
+        latestLyricsUrl = data.lyrics_url || latestLyricsUrl;
+
+        if (data.ok) {
+          latestLyricsText = data.lyrics || "";
+          latestLyricsTitle = data.title || "Letra";
+          latestLyricsArtist = data.artist || "";
+          document.getElementById("copy-lyrics-search-button").disabled = !latestLyricsText;
+          renderLyricsCard();
+          setStatus("download", "success", 100, "Letra encontrada", document.getElementById("download-logs").value.split("\n").filter(Boolean), []);
+          return;
+        }
+
+        latestLyricsText = "";
+        latestLyricsTitle = "";
+        latestLyricsArtist = "";
+        renderLyricsCard();
+        document.getElementById("copy-lyrics-search-button").disabled = true;
+
+        if (latestLyricsUrl) {
+          window.open(latestLyricsUrl, "_blank", "noopener,noreferrer");
+          setStatus("download", "muted", 100, "lyrics.ovh no la encontro. Abriendo busqueda...", document.getElementById("download-logs").value.split("\n").filter(Boolean), []);
+        } else {
+          setStatus("download", "error", 100, data.message || "No se pudo buscar la letra", document.getElementById("download-logs").value.split("\n").filter(Boolean), []);
+        }
+      });
+
+      document.getElementById("copy-lyrics-search-button").addEventListener("click", async () => {
+        if (!latestLyricsText) return;
+        try {
+          await navigator.clipboard.writeText(latestLyricsText);
+          setStatus("download", "success", 100, "Letra copiada", document.getElementById("download-logs").value.split("\n").filter(Boolean), []);
+        } catch {
+          setStatus("download", "error", 100, "No se pudo copiar", document.getElementById("download-logs").value.split("\n").filter(Boolean), []);
+        }
+      });
+
+      document.getElementById("separate-button").addEventListener("click", async () => {
+        const button = document.getElementById("separate-button");
+        const audioFile = document.getElementById("audio-file").value;
+        const preset = document.getElementById("karaoke-preset").value;
+        if (!audioFile) {
+          setStatus("separate", "error", 0, "Elige un audio", [], []);
+          return;
+        }
+
+        toggleButton(button, true);
+        setStatus("separate", "running", 0, "Preparando...", [], []);
+        const response = await fetch("/api/separate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ audio_file: audioFile, preset }),
+        });
+        const data = await response.json();
+        pollTask(data.task_id, "separate", button);
+      });
+    </script>
+  </body>
+</html>

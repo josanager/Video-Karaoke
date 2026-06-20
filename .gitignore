@@ -1,0 +1,8 @@
+.DS_Store
+__pycache__/
+.cache/
+.venv-stems/
+node_modules/
+descargas/
+*.pyc
+npm-debug.log*
